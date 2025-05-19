@@ -7,7 +7,6 @@ print('myPython [%s] on [%s]' % (sys.version, sys.platform))
 from dotenv import load_dotenv
 import os
 
-
 # .env 파일 로드 (파일 이름을 지정하지 않으면 기본적으로 '.env'를 찾음)
 load_dotenv("../../_apikeys.env")  # 또는 load_dotenv("config.env")
 
