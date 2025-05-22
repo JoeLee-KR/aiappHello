@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import os
 
 # .env 파일 로드 (파일 이름을 지정하지 않으면 기본적으로 '.env'를 찾음)
-load_dotenv("../../_apikeys.env")  # 또는 load_dotenv("config.env")
+load_dotenv("../_apikeys.env")  # 또는 load_dotenv("config.env")
 
 # 환경변수에서 API 키 읽기
 api_key = os.getenv("Doogie.2ndKey")
