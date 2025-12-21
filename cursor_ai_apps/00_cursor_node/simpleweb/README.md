@@ -21,3 +21,4 @@ node server.js
 
 이 프로젝트는 순수 Node.js의 `http` 모듈만 사용합니다 (Python의 `http.server`와 유사).
 Express 같은 프레임워크 없이도 간단한 웹 서버를 만들 수 있습니다.
+
