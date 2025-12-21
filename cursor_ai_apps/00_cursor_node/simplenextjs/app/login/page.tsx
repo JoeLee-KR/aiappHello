@@ -31,10 +31,14 @@ export default function LoginPage() {
       });
 
       if (error) {
-        alert(`로그인 실패: ${error.message}`);
-      } else {
-        router.push('/');
+        alert(error.message);
+        return;
       }
+
+      // 로그인 성공
+      console.log('로그인 성공, 쿠키 확인 바람');
+      router.push('/');
+      router.refresh();
     } catch (err) {
       alert(`오류 발생: ${err}`);
     } finally {
