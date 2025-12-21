@@ -47,26 +47,72 @@ export default function LoginPage() {
     }
   };
 
-  // 회원가입 처리
-  const handleSignUp = async () => {
-    if (!email || !password) {
-      alert('이메일과 비밀번호를 입력해주세요....nxc');
+  // 비밀번호 재설정 이메일 전송
+  const handleResetPassword = async () => {
+    if (!email) {
+      alert('비밀번호를 재설정할 이메일을 입력해주세요.');
       return;
     }
 
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (error) {
+        alert(`비밀번호 재설정 실패: ${error.message}`);
+        return;
+      }
+
+      alert('비밀번호 재설정 이메일을 보냈습니다. 이메일을 확인해주세요.');
+    } catch (err) {
+      alert(`오류 발생: ${err}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 회원가입 처리
+  const handleSignUp = async () => {
+    if (!email || !password) {
+      alert('이메일과 비밀번호를 입력해주세요.');
+      return;
+    }
+
+    // 비밀번호 최소 길이 체크 (Supabase 기본 요구사항)
+    if (password.length < 6) {
+      alert('비밀번호는 최소 6자 이상이어야 합니다.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (error) {
         alert(`회원가입 실패: ${error.message}`);
-      } else {
-        alert('회원가입 성공! 이메일을 확인해주세요.....nxc');
-        router.push('/');
+        return;
       }
+
+      // 이미 존재하는 이메일인 경우 (identities가 빈 배열)
+      if (data.user && data.user.identities && data.user.identities.length === 0) {
+        const shouldResetPassword = confirm(
+          '이미 가입된 이메일입니다.\n비밀번호를 잊으셨나요?\n\n확인을 누르면 비밀번호 재설정 이메일을 보내드립니다.'
+        );
+        
+        if (shouldResetPassword) {
+          await handleResetPassword();
+        }
+        return;
+      }
+
+      // 회원가입 성공
+      alert('회원가입 성공! 이메일을 확인해주세요.');
+      router.push('/');
     } catch (err) {
       alert(`오류 발생: ${err}`);
     } finally {
@@ -79,11 +125,11 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">로그인</CardTitle>
-          <CardDescription>이메일과 비밀번호를 입력하세요</CardDescription>
+          <CardDescription>이메일과 비밀번호를 입력하세요 nxclabs.com</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">이메일</Label>
+            <Label htmlFor="email">이메일...</Label>
             <Input
               id="email"
               type="email"
@@ -94,7 +140,7 @@ export default function LoginPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">비밀번호</Label>
+            <Label htmlFor="password">비밀번호...</Label>
             <Input
               id="password"
               type="password"
@@ -120,6 +166,13 @@ export default function LoginPage() {
             >
               {isLoading ? '처리중...' : '회원가입'}
             </Button>
+            <button
+              onClick={handleResetPassword}
+              disabled={isLoading}
+              className="text-sm text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 mt-2"
+            >
+              비밀번호를 잊으셨나요?
+            </button>
           </div>
         </CardContent>
       </Card>
