@@ -19,11 +19,12 @@ export default function LoginPage() {
   // 로그인 처리
   const handleLogin = async () => {
     if (!email || !password) {
-      alert('이메일과 비밀번호를 입력해주세요.');
+      alert('이메일과 비밀번호를 입력해주세요.nxc');
       return;
     }
 
     setIsLoading(true);
+    console.log('로그인 시도 시작, 쿠키 확인 바랍니다. nxc');
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
@@ -36,7 +37,7 @@ export default function LoginPage() {
       }
 
       // 로그인 성공
-      console.log('로그인 성공, 쿠키 확인 바람');
+      console.log('로그인 성공, 쿠키 확인 바람 nxc');
       router.push('/');
       router.refresh();
     } catch (err) {
@@ -49,7 +50,7 @@ export default function LoginPage() {
   // 회원가입 처리
   const handleSignUp = async () => {
     if (!email || !password) {
-      alert('이메일과 비밀번호를 입력해주세요.');
+      alert('이메일과 비밀번호를 입력해주세요....nxc');
       return;
     }
 
@@ -63,7 +64,7 @@ export default function LoginPage() {
       if (error) {
         alert(`회원가입 실패: ${error.message}`);
       } else {
-        alert('회원가입 성공! 이메일을 확인해주세요.');
+        alert('회원가입 성공! 이메일을 확인해주세요.....nxc');
         router.push('/');
       }
     } catch (err) {
