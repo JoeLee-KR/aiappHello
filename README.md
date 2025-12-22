@@ -1,10 +1,12 @@
-# aiHello
+### /aiHello
 - /openai_app-t12: OpenAI Apps w/RAG, python3.9
 - /cursor_ai_apps: start with cursor w/some apps
+- /vibe_cursor_30apps: start vibe code apps w/cursor
 
 ### major subjects & Books
 - Book: OpenAI API Langchain활용 LLM Projects 12
-- Book: Cursor & AI, Vibe coding with Cursor Apps
+- Book: Cursor & AI
+- Book: Vibe coding with Cursor Apps
 
 ### upgrade pip and packages, at conda env
 ```bash
