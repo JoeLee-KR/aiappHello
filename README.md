@@ -1,10 +1,10 @@
 # aiHello
-### ai apps works
-- AI Apps and Programming with AI Platform: OpenAI, Antropic, Claude ...
-- works on Python (normally 3.9) & Pycharm 
+- /openai_app-t12: OpenAI Apps w/RAG, python3.9
+- /cursor_ai_apps: start with cursor w/some apps
 
 ### major subjects & Books
-- Book: OpenAI API, Langchain활용 LLM Projects 12
+- Book: OpenAI API Langchain활용 LLM Projects 12
+- Book: Cursor & AI, Vibe coding with Cursor Apps
 
 ### upgrade pip and packages, at conda env
 ```bash
