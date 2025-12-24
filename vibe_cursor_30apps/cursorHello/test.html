@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>doogie.nxclabs.com | The Open Source Firebase Alternative</title>
+    <link rel="icon" type="image/png" href="imgs/nxc_logo_02c_t.png">
+    <!-- Tailwind CSS CDN for fast "Vibe Coding" -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: white; }
+        .gradient-text {
+            background: linear-gradient(to right, #34d399, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Navigation -->
+    <nav class="flex items-center justify-between p-6 max-w-7xl mx-auto">
+        <div class="flex items-center gap-3">
+            <img src="imgs/nxc_logo_02_t.png" alt="Logo" class="w-8 h-8 object-contain">
+            <span class="text-xl font-bold tracking-tight">doogie.nxclabs.com</span>
+        </div>
+        <div class="hidden md:flex gap-8 text-sm text-gray-400">
+            <a href="#" class="hover:text-white transition">Product</a>
+            <a href="#" class="hover:text-white transition">Developers</a>
+            <a href="#" class="hover:text-white transition">Pricing</a>
+        </div>
+        <div class="flex gap-4">
+            <button class="text-sm px-4 py-2 hover:text-white text-gray-400">Sign in</button>
+            <button class="text-sm bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-md transition font-medium">Start your project</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto px-6 py-24 text-center">
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight">
+            Build in a weekend. <br/>
+            <span class="gradient-text">Scale to billions.</span>
+        </h1>
+        <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+            doogie.nxclabs.com은 GitHub의 협업 능력과 Supabase의 강력한 인프라를 결합한 차세대 개발 플랫폼입니다. nxclabs.com과 함께 오픈 소스로 시작하세요.
+        </p>
+        <div class="flex justify-center gap-4">
+            <button class="bg-white text-black px-8 py-3 rounded-md font-bold hover:bg-gray-200 transition">Get Started</button>
+            <button class="bg-gray-800 text-white px-8 py-3 rounded-md font-bold border border-gray-700 hover:bg-gray-700 transition flex items-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                Star on GitHub
+            </button>
+        </div>
+    </section>
+
+    <!-- Code Block / Feature Section -->
+    <section class="max-w-5xl mx-auto px-6 py-12">
+        <div class="bg-zinc-900 rounded-xl border border-zinc-800 p-1 shadow-2xl">
+            <div class="flex items-center gap-2 px-4 py-2 border-b border-zinc-800">
+                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                <span class="ml-4 text-xs text-zinc-500 font-mono">lib/init.js</span>
+            </div>
+            <div class="p-6 font-mono text-sm leading-relaxed overflow-x-auto">
+                <p><span class="text-purple-400">import</span> { createClient } <span class="text-purple-400">from</span> <span class="text-emerald-400">'@devplatform/sdk'</span></p>
+                <p class="mt-2 text-gray-500">// Initialize the project</p>
+                <p><span class="text-purple-400">const</span> client = <span class="text-blue-400">createClient</span>({</p>
+                <p class="ml-4">projectId: <span class="text-emerald-400">'cursor-hello-world'</span>,</p>
+                <p class="ml-4">apiKey: <span class="text-emerald-400">'dp_live_...'</span></p>
+                <p>})</p>
+                <p class="mt-4"><span class="text-purple-400">await</span> client.database.<span class="text-blue-400">sync</span>()</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature Cards -->
+    <section class="max-w-7xl mx-auto px-6 py-24 grid md:grid-cols-3 gap-8">
+        <div class="p-8 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 transition">
+            <div class="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-6">
+                <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.58 4 8 4s8-1.79 8-4M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4m0 5c0 2.21-3.58 4-8 4s-8-1.79-8-4"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Database</h3>
+            <p class="text-gray-400">PostgreSQL 기반의 실시간 데이터베이스를 단 몇 초 만에 프로비저닝하세요.</p>
+        </div>
+        <div class="p-8 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 transition">
+            <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-6">
+                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Auth</h3>
+            <p class="text-gray-400">GitHub, Google, Apple 로그인을 포함한 강력한 인증 솔루션을 제공합니다.</p>
+        </div>
+        <div class="p-8 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-900 transition">
+            <div class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-6">
+                <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Functions</h3>
+            <p class="text-gray-400">Edge Functions를 통해 전 세계 어디서나 지연 시간 없는 로직을 실행하세요.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-zinc-800 py-12 text-center text-sm text-gray-500">
+        <p>&copy; 2025 nxclabs.com Inc. Built with Vibe Coding.</p>
+    </footer>
+
+</body>
+</html>
+

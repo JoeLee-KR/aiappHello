@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사과 게임 Gemini 3 | nxclabs.com</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            background: #2c3e50; 
+            font-family: 'Noto Sans KR', sans-serif;
+            color: white; 
+            touch-action: none; 
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .game-container {
+            position: relative;
+            background: #34495e;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #2c3e50;
+            padding: 15px 25px;
+            border-radius: 15px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .pixel-font { font-family: 'Press Start 2P', cursive; }
+        
+        .score-box { text-align: center; }
+        .score-label { font-size: 0.8rem; color: #95a5a6; margin-bottom: 5px; }
+        .score-value { font-size: 1.5rem; color: #f1c40f; text-shadow: 2px 2px 0 #d35400; }
+        
+        #game-canvas { 
+            background: #ecf0f1; 
+            border-radius: 10px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
+            width: 100%;
+            height: auto;
+            image-rendering: pixelated;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .btn {
+            background: #e74c3c;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            box-shadow: 0 5px 0 #c0392b;
+        }
+        
+        .btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 #c0392b;
+        }
+        
+        .btn-green { background: #2ecc71; box-shadow: 0 5px 0 #27ae60; }
+        .btn-green:active { box-shadow: 0 0 0 #27ae60; }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: white;
+            color: #2c3e50;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .gauge-container {
+            width: 100%;
+            height: 10px;
+            background: #2c3e50;
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .gauge-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f1c40f, #e67e22);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .combo-text {
+            position: absolute;
+            font-family: 'Press Start 2P', cursive;
+            color: #f1c40f;
+            text-shadow: 2px 2px 0 #c0392b;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatUp 1s forwards;
+            z-index: 10;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div class="header">
+            <div class="score-box">
+                <div class="score-label pixel-font">SCORE</div>
+                <div class="score-value pixel-font" id="score">0</div>
+            </div>
+            
+            <div class="score-box" style="flex-grow: 1; margin: 0 20px;">
+                <div class="score-label pixel-font">LEVEL <span id="level">1</span></div>
+                <div class="gauge-container">
+                    <div class="gauge-fill" id="level-gauge"></div>
+                </div>
+            </div>
+
+            <div class="score-box">
+                <div class="score-label pixel-font">TIME</div>
+                <div class="score-value pixel-font" id="timer">60</div>
+            </div>
+        </div>
+
+        <canvas id="game-canvas" width="800" height="600"></canvas>
+        
+        <div class="controls">
+            <button id="reset-btn" class="btn btn-green">NEW GAME</button>
+            <button id="hint-btn" class="btn">HINT</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-4xl font-bold mb-4 pixel-font text-red-500">GAME OVER</h2>
+            <p class="text-gray-600 mb-6 font-bold text-xl">최종 점수</p>
+            <p class="text-6xl font-bold text-emerald-500 mb-8 pixel-font" id="final-score">0</p>
+            <button class="btn btn-green w-full" onclick="initGame()">TRY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const timerEl = document.getElementById('timer');
+        const levelEl = document.getElementById('level');
+        const gaugeEl = document.getElementById('level-gauge');
+        const modal = document.getElementById('game-over-modal');
+        const finalScoreEl = document.getElementById('final-score');
+
+        // Game Constants
+        const ROWS = 10;
+        const COLS = 12;
+        let APPLE_SIZE = 60; // 반응형으로 조정됨
+        const PADDING = 2;
+
+        // Game State
+        let apples = [];
+        let score = 0;
+        let timeLeft = 60;
+        let level = 1;
+        let levelScore = 0;
+        let targetScore = 1000;
+        let isDragging = false;
+        let startPos = null;
+        let currentPos = null;
+        let gameActive = false;
+        let timerInterval = null;
+        let hintTimer = null;
+
+        class Apple {
+            constructor(r, c) {
+                this.row = r;
+                this.col = c;
+                this.value = Math.floor(Math.random() * 9) + 1;
+                this.removed = false;
+                this.scale = 1;
+                this.isHint = false;
+            }
+
+            draw(x, y, size) {
+                if (this.removed) return;
+                
+                const cx = x + size/2;
+                const cy = y + size/2;
+                const r = (size/2) * 0.85 * this.scale;
+
+                // Shadow
+                ctx.beginPath();
+                ctx.arc(cx + 3, cy + 3, r, 0, Math.PI*2);
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                ctx.fill();
+
+                // Body
+                ctx.beginPath();
+                ctx.arc(cx, cy, r, 0, Math.PI*2);
+                
+                // Color based on value (Gradient)
+                const grad = ctx.createRadialGradient(cx-r/3, cy-r/3, r/5, cx, cy, r);
+                if (this.isHint) {
+                    grad.addColorStop(0, '#ffff00');
+                    grad.addColorStop(1, '#ffeb3b');
+                } else {
+                    grad.addColorStop(0, '#ff7675');
+                    grad.addColorStop(1, '#d63031');
+                }
+                
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                // Leaf
+                ctx.beginPath();
+                ctx.moveTo(cx, cy - r);
+                ctx.quadraticCurveTo(cx + r/3, cy - r*1.3, cx + r/2, cy - r*0.8);
+                ctx.quadraticCurveTo(cx + r/4, cy - r*0.9, cx, cy - r);
+                ctx.fillStyle = '#55efc4';
+                ctx.fill();
+
+                // Shine
+                ctx.beginPath();
+                ctx.arc(cx - r/3, cy - r/3, r/4, 0, Math.PI*2);
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.fill();
+
+                // Number
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${size*0.5}px "Noto Sans KR"`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 4;
+                ctx.fillText(this.value, cx, cy + size*0.05);
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function resize() {
+            const container = document.querySelector('.game-container');
+            const maxWidth = container.clientWidth - 40;
+            const maxHeight = window.innerHeight - 250;
+            
+            const aspect = COLS / ROWS;
+            let w = maxWidth;
+            let h = w / aspect;
+            
+            if (h > maxHeight) {
+                h = maxHeight;
+                w = h * aspect;
+            }
+
+            canvas.width = w;
+            canvas.height = h;
+            APPLE_SIZE = w / COLS;
+            draw();
+        }
+        window.addEventListener('resize', resize);
+
+        function initGame() {
+            apples = [];
+            score = 0;
+            timeLeft = 60;
+            level = 1;
+            levelScore = 0;
+            targetScore = 1000;
+            gameActive = true;
+            modal.style.display = 'none';
+            
+            scoreEl.innerText = score;
+            timerEl.innerText = timeLeft;
+            levelEl.innerText = level;
+            updateGauge();
+
+            for(let r=0; r<ROWS; r++) {
+                for(let c=0; c<COLS; c++) {
+                    apples.push(new Apple(r, c));
+                }
+            }
+
+            resize();
+            startGameLoop();
+        }
+
+        function startGameLoop() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!gameActive) return;
+                timeLeft--;
+                timerEl.innerText = timeLeft;
+                if (timeLeft <= 0) gameOver();
+            }, 1000);
+            
+            requestAnimationFrame(loop);
+        }
+
+        function loop() {
+            if (!gameActive) return;
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        function update() {
+            // Animation update
+            apples.forEach(a => {
+                if (a.scale < 1) a.scale += 0.1;
+                if (a.scale > 1) a.scale = 1;
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw selection box
+            if (isDragging && startPos && currentPos) {
+                const x = Math.min(startPos.x, currentPos.x);
+                const y = Math.min(startPos.y, currentPos.y);
+                const w = Math.abs(currentPos.x - startPos.x);
+                const h = Math.abs(currentPos.y - startPos.y);
+
+                ctx.fillStyle = 'rgba(46, 204, 113, 0.2)';
+                ctx.fillRect(x, y, w, h);
+                ctx.strokeStyle = '#2ecc71';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.strokeRect(x, y, w, h);
+                ctx.setLineDash([]);
+            }
+
+            apples.forEach(a => {
+                a.draw(a.col * APPLE_SIZE, a.row * APPLE_SIZE, APPLE_SIZE);
+            });
+        }
+
+        function getApplesInRect(rect) {
+            return apples.filter(a => {
+                if (a.removed) return false;
+                const cx = (a.col + 0.5) * APPLE_SIZE;
+                const cy = (a.row + 0.5) * APPLE_SIZE;
+                return cx >= rect.x && cx <= rect.x + rect.w &&
+                       cy >= rect.y && cy <= rect.y + rect.h;
+            });
+        }
+
+        function checkSum(selected) {
+            const sum = selected.reduce((acc, a) => acc + a.value, 0);
+            return sum > 0 && sum % 10 === 0; // 10의 배수 규칙
+        }
+
+        function showComboText(x, y, text) {
+            const el = document.createElement('div');
+            el.className = 'combo-text';
+            el.innerText = text;
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        // Input Handling
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        canvas.addEventListener('mousedown', startDrag);
+        canvas.addEventListener('touchstart', startDrag, {passive: false});
+        
+        window.addEventListener('mousemove', drag);
+        window.addEventListener('touchmove', drag, {passive: false});
+        
+        window.addEventListener('mouseup', endDrag);
+        window.addEventListener('touchend', endDrag);
+
+        function startDrag(e) {
+            if (!gameActive) return;
+            if (e.type === 'touchstart') e.preventDefault();
+            isDragging = true;
+            startPos = getPos(e);
+            currentPos = startPos;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            if (e.type === 'touchmove') e.preventDefault();
+            currentPos = getPos(e);
+        }
+
+        function endDrag(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const x = Math.min(startPos.x, currentPos.x);
+            const y = Math.min(startPos.y, currentPos.y);
+            const w = Math.abs(currentPos.x - startPos.x);
+            const h = Math.abs(currentPos.y - startPos.y);
+
+            const selected = getApplesInRect({x, y, w, h});
+            
+            if (checkSum(selected)) {
+                // Success
+                const sum = selected.reduce((acc, a) => acc + a.value, 0);
+                const points = sum * selected.length; // 점수 계산식: 합 × 개수
+                
+                score += points;
+                levelScore += points;
+                timeLeft += Math.min(selected.length, 5); // 시간 보너스
+
+                selected.forEach(a => {
+                    a.removed = true;
+                    // Sparkle effect placeholder
+                });
+
+                scoreEl.innerText = score;
+                timerEl.innerText = timeLeft;
+                updateGauge();
+                
+                const rect = canvas.getBoundingClientRect();
+                showComboText(rect.left + x + w/2, rect.top + y, `+${points}`);
+
+                // Check Level Up
+                if (levelScore >= targetScore) {
+                    levelUp();
+                }
+            }
+
+            draw();
+        }
+
+        function updateGauge() {
+            const percent = Math.min((levelScore / targetScore) * 100, 100);
+            gaugeEl.style.width = percent + '%';
+        }
+
+        function levelUp() {
+            level++;
+            levelScore = 0;
+            targetScore = Math.floor(targetScore * 1.5);
+            timeLeft += 20; // 레벨업 보너스 시간
+            
+            levelEl.innerText = level;
+            timerEl.innerText = timeLeft;
+            updateGauge();
+            
+            // Refill apples
+            apples = apples.filter(a => !a.removed); // Keep existing? No, refill all or empty spots
+            // Simple logic: refill empty spots
+            for(let r=0; r<ROWS; r++) {
+                for(let c=0; c<COLS; c++) {
+                    const exists = apples.find(a => a.row === r && a.col === c);
+                    if (!exists) {
+                        const a = new Apple(r, c);
+                        a.scale = 0; // Pop in animation
+                        apples.push(a);
+                    }
+                }
+            }
+            
+            showComboText(window.innerWidth/2, window.innerHeight/2, "LEVEL UP!");
+        }
+
+        function gameOver() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            finalScoreEl.innerText = score;
+            modal.style.display = 'flex';
+        }
+
+        // Hint System
+        document.getElementById('hint-btn').addEventListener('click', () => {
+            if (!gameActive) return;
+            // Simple hint: find first pair that sums to 10
+            // Actually find any rect that works
+            // This is hard to do perfectly efficiently, so let's just cheat and show random unremoved apple
+            // Better: Find 2 apples that make 10
+            
+            // Reset previous hints
+            apples.forEach(a => a.isHint = false);
+
+            // Find solution
+            // (Naive implementation)
+            const available = apples.filter(a => !a.removed);
+            let found = false;
+            
+            // Try to find a pair
+            for(let i=0; i<available.length; i++) {
+                for(let j=i+1; j<available.length; j++) {
+                    if ((available[i].value + available[j].value) % 10 === 0) {
+                        // Check if they are in a rect
+                        // Simply highlight them
+                        available[i].isHint = true;
+                        available[j].isHint = true;
+                        found = true;
+                        break;
+                    }
+                }
+                if(found) break;
+            }
+            
+            draw();
+            setTimeout(() => {
+                apples.forEach(a => a.isHint = false);
+                draw();
+            }, 1000);
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', initGame);
+
+        // Start
+        initGame();
+
+    </script>
+</body>
+</html>
+
