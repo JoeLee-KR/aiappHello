@@ -1,0 +1,12 @@
+{
+  "name": "cursor_ai_mywebs",
+  "version": "1.0.0",
+  "description": "joe cursor_ai_mywebs test",
+  "license": "ISC",
+  "author": "doogie",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

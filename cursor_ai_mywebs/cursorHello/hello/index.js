@@ -1,6 +1,6 @@
 // hello world
 function greet(name) {
-    console.log(`Hello, Emma Jade Lane, ${name}!`);
+    console.log(`from Emma Jade Lane, Hello${name}!`);
 }
 
 greet('John');
