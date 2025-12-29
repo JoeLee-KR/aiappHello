@@ -8,7 +8,7 @@
 #
 # project CUSTOM
 #
-openai-app-t12/localdb
+openai_app_t12/localdb
 
 # --------------------------------------------------------------------
 # 1. SECURITY & ENV (가장 중요 - AI API Key 유출 방지)
