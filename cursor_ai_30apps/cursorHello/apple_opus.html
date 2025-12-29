@@ -27,8 +27,10 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         #game-over-modal { display: none; }
+        /* noinspection ALL */
         #game-over-modal.show { display: flex; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        /* noinspection ALL */
         .pulse { animation: pulse 2s infinite; }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .slide-in { animation: slideIn 0.3s ease-out; }
@@ -37,7 +39,7 @@
 <body class="flex flex-col items-center justify-center p-4">
 
     <div class="mb-8 text-center slide-in">
-        <h1 class="text-5xl font-extrabold mb-3 text-red-400 glow-text">🍎 사과 게임</h1>
+        <h1 id="game-title" class="text-5xl font-extrabold mb-3 text-red-400 glow-text">🍎 사과 게임</h1>
         <p class="text-gray-400 text-lg">드래그하여 숫자의 합이 <span class="text-yellow-400 font-bold">10의 배수</span>가 되게 만드세요!</p>
     </div>
 
@@ -68,7 +70,7 @@
     <div id="game-over-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
         <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-10 border border-slate-700 shadow-2xl max-w-md w-full mx-4 text-center">
             <div class="text-6xl mb-4">🍎</div>
-            <h2 class="text-4xl font-extrabold mb-2 text-red-400">게임 종료!</h2>
+            <h2 id="modal-title" class="text-4xl font-extrabold mb-2 text-red-400">게임 종료!</h2>
             <p class="text-gray-400 mb-6">시간이 다 되었습니다!</p>
             <div class="bg-slate-800/50 rounded-2xl p-6 mb-6">
                 <p class="text-lg text-gray-300">최종 점수</p>
@@ -92,6 +94,8 @@
         const finalScoreElement = document.getElementById('final-score');
         const finalRemovedElement = document.getElementById('final-removed');
         const newGameBtn = document.getElementById('new-game-btn');
+        const gameTitle = document.getElementById('game-title');
+        const modalTitle = document.getElementById('modal-title');
 
         const ROWS = 10;
         const COLS = 15;
@@ -172,7 +176,9 @@
             
             scoreElement.innerText = score;
             timerElement.innerText = timeLeft;
-            currentSumElement.innerText = 0;
+            currentSumElement.innerText = "0";
+            gameTitle.classList.remove('pulse');
+            modalTitle.classList.remove('pulse');
             gameOverModal.classList.remove('show');
             
             for (let r = 0; r < ROWS; r++) {
@@ -201,7 +207,7 @@
 
         function updateRemaining() {
             const count = apples.filter(a => !a.removed).length;
-            remainingElement.innerText = count;
+            remainingElement.innerText = count.toString();
         }
 
         function draw() {
@@ -251,9 +257,9 @@
         }
 
         function calculateScore(count) {
-            if (count <= 3) return count;
-            const extra = count - 3;
-            return 3 + extra * (extra + 1);
+            if (count < 2) return count;
+            const extra = count - 2;
+            return 2 + extra * (extra + 1);
         }
 
         function gameOver() {
@@ -261,6 +267,7 @@
             if (timerInterval) clearInterval(timerInterval);
             finalScoreElement.innerText = score;
             finalRemovedElement.innerText = removedCount;
+            modalTitle.classList.add('pulse');
             gameOverModal.classList.add('show');
         }
 
@@ -305,7 +312,7 @@
                 updateRemaining();
             }
             
-            currentSumElement.innerText = 0;
+            currentSumElement.innerText = "0";
             currentSumElement.style.color = '#fbbf24';
             draw();
         });
@@ -356,7 +363,7 @@
                 updateRemaining();
             }
             
-            currentSumElement.innerText = 0;
+            currentSumElement.innerText = "0";
             currentSumElement.style.color = '#fbbf24';
             draw();
         });
