@@ -123,11 +123,11 @@ export default function Home() {
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
       case "긍정적인 감성":
-        return "text-emerald-400";
+        return "text-emerald-600";
       case "부정적인 감성":
-        return "text-rose-400";
+        return "text-rose-600";
       default:
-        return "text-slate-400";
+        return "text-slate-600";
     }
   };
 
@@ -138,40 +138,40 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0a1a]">
+    <div className="min-h-screen bg-slate-50">
       <div className="container mx-auto px-4 py-8 sm:py-16">
         <div className="max-w-2xl mx-auto">
           {/* 헤더 */}
           <div className="text-center mb-8 sm:mb-12 animate-fade-in">
-            <h1 className="text-3xl sm:text-4xl font-bold text-indigo-200 mb-3">
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-3">
               AI 감성분석기
             </h1>
-            <p className="text-indigo-200/70 text-base sm:text-lg">
+            <p className="text-slate-600 text-base sm:text-lg">
               AI가 분석한 감성을 표시합니다.
             </p>
           </div>
 
           {/* 입력 카드 */}
-          <Card className="mb-6 shadow-xl border-0 bg-slate-800/60 backdrop-blur-sm animate-slide-up">
+          <Card className="mb-6 shadow-md border-slate-200 bg-white animate-slide-up">
             <CardHeader>
-              <CardTitle className="text-lg text-indigo-100">텍스트 입력</CardTitle>
-              <CardDescription className="text-indigo-300/60">
+              <CardTitle className="text-lg text-slate-800">텍스트 입력</CardTitle>
+              <CardDescription className="text-slate-500">
                 분석하고 싶은 텍스트를 입력해주세요.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* 분석 기록 */}
               {history.length > 0 && (
-                <div className="space-y-1 mb-4 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
-                  <p className="text-xs text-indigo-300/50 mb-2">최근 분석 기록</p>
+                <div className="space-y-1 mb-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <p className="text-xs text-slate-400 mb-2">최근 분석 기록</p>
                   {history.map((item) => (
                     <div
                       key={item.id}
-                      className="text-xs text-slate-400 truncate hover:text-indigo-300 cursor-pointer transition-colors"
+                      className="text-xs text-slate-600 truncate hover:text-slate-900 cursor-pointer transition-colors"
                       onClick={() => setInputText(item.text)}
                       title={item.text}
                     >
-                      <span className="text-indigo-400/60 mr-2">{formatDateTime(item.timestamp)}</span>
+                      <span className="text-slate-400 mr-2">{formatDateTime(item.timestamp)}</span>
                       {truncateText(item.text)}
                     </div>
                   ))}
@@ -179,7 +179,7 @@ export default function Home() {
               )}
 
               <textarea
-                className="w-full min-h-[120px] p-4 border border-slate-600/50 rounded-lg bg-slate-900/50 text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+                className="w-full min-h-[120px] p-4 border border-slate-200 rounded-lg bg-white text-slate-800 placeholder:text-slate-400 resize-none focus:outline-none focus:ring-2 focus:ring-slate-500/20 focus:border-slate-500 transition-all"
                 placeholder="여기에 감성을 분석할 텍스트를 입력하세요..."
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
@@ -187,7 +187,7 @@ export default function Home() {
               <Button
                 onClick={handleAnalyze}
                 disabled={!inputText.trim() || isAnalyzing}
-                className="w-full h-11 text-base font-medium bg-indigo-600 hover:bg-indigo-500 border-0 transition-all duration-300"
+                className="w-full h-11 text-base font-medium bg-slate-900 hover:bg-slate-800 text-white border-0 transition-all duration-300"
               >
                 {isAnalyzing ? (
                   <span className="flex items-center gap-2">
@@ -203,9 +203,9 @@ export default function Home() {
 
           {/* 결과 카드 */}
           {result && (
-            <Card className="shadow-xl border-0 bg-slate-800/60 backdrop-blur-sm animate-result-appear">
+            <Card className="shadow-md border-slate-200 bg-white animate-result-appear">
               <CardHeader>
-                <CardTitle className="text-lg text-indigo-100">분석 결과</CardTitle>
+                <CardTitle className="text-lg text-slate-800">분석 결과</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* 감성 분류 */}
@@ -222,10 +222,10 @@ export default function Home() {
                 {/* 점수 표시 */}
                 <div className="space-y-3 animate-fade-in-delay-2">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-slate-400">감성 점수</span>
-                    <span className="font-semibold text-lg text-indigo-100">{result.score}점</span>
+                    <span className="text-slate-500">감성 점수</span>
+                    <span className="font-semibold text-lg text-slate-800">{result.score}점</span>
                   </div>
-                  <div className="h-3 bg-slate-700 rounded-full overflow-hidden">
+                  <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                     <div
                       className={`h-full ${getScoreBarColor(
                         result.score
@@ -233,7 +233,7 @@ export default function Home() {
                       style={{ width: `${result.score}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-slate-500">
+                  <div className="flex justify-between text-xs text-slate-400">
                     <span>부정적 (0)</span>
                     <span>중립 (50)</span>
                     <span>긍정적 (100)</span>
@@ -241,8 +241,8 @@ export default function Home() {
                 </div>
 
                 {/* 설명 */}
-                <div className="p-4 bg-slate-900/50 rounded-lg animate-fade-in-delay-3">
-                  <p className="text-slate-400 text-sm leading-relaxed">
+                <div className="p-4 bg-slate-50 rounded-lg animate-fade-in-delay-3">
+                  <p className="text-slate-600 text-sm leading-relaxed">
                     {result.description}
                   </p>
                 </div>
