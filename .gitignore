@@ -38,9 +38,11 @@ config/local.json
 .LSOverride
 ._*
 .Trash
+.Traches
 Thumbs.db
 ehthumbs.db
 desktop.ini
+$RECYCLE.BIN/
 
 # Editors & Temp
 *.swp
@@ -71,6 +73,14 @@ out/
 # [중요] Cursor AI Context Rules (Project Asset)
 # Git에 포함시켜 팀/AI 컨텍스트 공유 (주석 처리 = Not Ignored)
 # .cursorrules
+
+# Flutter Build
+.flutter-plugins
+.flutter-plugins-dependencies
+.dart_tool/
+.packages
+android/.gradle/
+ios/Pods/
 
 # History
 .history/
@@ -138,7 +148,7 @@ eggs/
 parts/
 var/
 sdist/
-wheel/
+wheels/
 develop-eggs/
 lib64/
 downloads/
@@ -184,6 +194,15 @@ ipython_config.py
 .chroma/
 .faiss/
 
+# local LLM models
+*.h5
+*.hdf5
+*.pkl
+*.onnx
+*.pb
+wandb/
+mlruns/
+
 # --------------------------------------------------------------------
 # 7. DATABASE & LOGS
 # --------------------------------------------------------------------
@@ -213,7 +232,14 @@ test-result/
 *.map
 
 # --------------------------------------------------------------------
-# 8. CUSTOM MEDIA
+# 8. CLOUD SERVICE
+# --------------------------------------------------------------------
+.aws/
+.gcloud/
+.azure/
+
+# --------------------------------------------------------------------
+# 9. CUSTOM MEDIA
 # --------------------------------------------------------------------
 *.wav
 *.mp3
