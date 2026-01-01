@@ -1,187 +1,248 @@
-#
-# JOE CUSTOM 
-#   Dec 2025
-*.wav
-*.mp3
-*.plaintext
-
-#
-# project CUSTOM
-#
-openai-app-t12/localdb
+# ====================================================================
+# PROJECT: Hybrid AI Service (Node.js + Python + Flutter)
+# AUTHOR: Distinguished Engineer (Clean Architecture)
+# UPDATED: Dec 2025 (Final Review)
+# ====================================================================
 
 # --------------------------------------------------------------------
-# 1. SECURITY & ENV (가장 중요 - AI API Key 유출 방지)
+# 0. PROJECT CUSTOM
+# --------------------------------------------------------------------
+# Local DB Data (Directory itself matches)
+openai_app_t12/localdb/
+
+# --------------------------------------------------------------------
+# 1. SECURITY & ENV (Absolute Priority)
 # --------------------------------------------------------------------
 .env
-.env.*
+.env*
+*.env
 !.env.example
 !.env.test
-_*.env
+!.env.template
+
+# Secrets & Certificates
+secrets/
+config/secrets.json
+config/local.json
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
 
 # --------------------------------------------------------------------
-# 2. NODE.JS / NEXT.JS (필수 추가)
+# 2. OS & FILESYSTEM
+# --------------------------------------------------------------------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Trash
+.Traches
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Editors & Temp
+*.swp
+*.swo
+*~
+*.tmp
+*.bak
+
+# --------------------------------------------------------------------
+# 3. IDE & TOOLS
+# --------------------------------------------------------------------
+# JetBrains
+.idea/
+.idea_modules/
+*.iws
+*.iml
+*.ipr
+out/
+
+# VS Code / Cursor
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/*.code-snippets
+
+# [중요] Cursor AI Context Rules (Project Asset)
+# Git에 포함시켜 팀/AI 컨텍스트 공유 (주석 처리 = Not Ignored)
+# .cursorrules
+
+# Flutter Build
+.flutter-plugins
+.flutter-plugins-dependencies
+.dart_tool/
+.packages
+android/.gradle/
+ios/Pods/
+
+# History
+.history/
+.shelf/
+
+# --------------------------------------------------------------------
+# 4. NODE.JS / NEXT.JS / WEB
 # --------------------------------------------------------------------
 node_modules/
+.pnp
+.pnp.js
+.npm/
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Next.js build output
+# Build Outputs
 .next/
-out/
+build/
+dist/
+coverage/
+.nyc_output/
 
-# Shadcn & Custom Utils (절대 무시하면 안됨!)
-# !lib/  <-- 원래 있던 'lib/'을 지우는 대신, 혹시 몰라 명시적으로 허용해둠.
-# !src/  <-- 소스 코드 폴더 보호
+# Next.js & TS Generated
+next-env.d.ts
+*.tsbuildinfo
 
-# --------------------------------------------------------------------
-# 3. IDE & OS (JetBrains + Cursor + Mac)
-# --------------------------------------------------------------------
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
+# Cache (Turbo, Vercel, Parcel, Eslint)
+.turbo/
+.vercel/
+.cache/
+.parcel-cache/
+.eslintcache
 
-# JetBrains (WebStorm, PyCharm) - 주석 해제함 (무시하는 게 맞음)
-.idea/
-*.iml
-*.iws
-
-# Cursor / VS Code
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.cursorrules
-.history/
+# [ARCHITECTURE] Source Protection
+# lib/가 Node 소스라면 무시되지 않도록 강제 허용
+!lib/
+!src/
 
 # --------------------------------------------------------------------
-# 4. PYTHON (기존 내용 최적화)
+# 5. PYTHON (AI Backend)
 # --------------------------------------------------------------------
-# Byte-compiled / optimized / DLL files
+# Byte-compiled / Optimized
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
 
-# Distribution / packaging
+# Virtual Environments
+.env/
+.venv/
+env/
+venv/
+ENV/
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
+
+# Packaging
+*.egg
+*.egg-info/
 eggs/
 .eggs/
-# lib/      <--- [삭제됨] Node.js 소스 보호를 위해 제거함. Python에선 venv 쓰면 문제없음.
-lib64/
 parts/
-sdist/
 var/
+sdist/
 wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+develop-eggs/
+lib64/
+downloads/
 MANIFEST
 
 # PyInstaller
 *.manifest
 *.spec
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
+# Testing & Coverage
 htmlcov/
 .tox/
 .nox/
 .coverage
 .coverage.*
-.cache
+.pytest_cache/
+.hypothesis/
 nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
 
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
+# Frameworks
 instance/
 .webassets-cache
 
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-.pybuilder/
-target/
-
-# Jupyter Notebook
+# Jupyter
 .ipynb_checkpoints
-
-# IPython
+*.ipynb_checkpoints/
 profile_default/
 ipython_config.py
 
-# uv, poetry, pdm, pipenv
-# 필요한 락 파일은 협업 시 보통 커밋하므로 주석 처리 상태 유지 (취향 존중)
-#Pipfile.lock
-#uv.lock
-#poetry.lock
-#pdm.lock
-.pdm.toml
-.pdm-python
-.pdm-build/
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments (Virtual Envs)
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Tools
-.spyderproject
-.spyproject
-.ropeproject
-/site
+# Type Checking
 .mypy_cache/
-.dmypy.json
-dmypy.json
-.pyre/
-.pytype/
-cython_debug/
 .ruff_cache/
-.pypirc
-#
+.dmypy.json
+
+# --------------------------------------------------------------------
+# 6. LLM / AI CACHE
+# --------------------------------------------------------------------
+.prompt_cache/
+.llm_cache/
+.vectorstore/
+.chroma/
+.faiss/
+
+# local LLM models
+*.h5
+*.hdf5
+*.pkl
+*.onnx
+*.pb
+wandb/
+mlruns/
+
+# --------------------------------------------------------------------
+# 7. DATABASE & LOGS
+# --------------------------------------------------------------------
+# Data Files (Ignore)
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite3-journal
+*.dump
+
+# [주의] SQL Script는 소스코드일 수 있으므로 무조건 무시하지 않음.
+# 덤프 파일만 명시적으로 무시하거나, 필요시 아래 주석 해제.
+# *.sql
+
+# Logs & Temp
+*.log
+*.pid
+*.seed
+logs/
+temp/
+tmp/
+uploads/
+downloads/
+upload/
+download/
+test-result/
+*.map
+
+# --------------------------------------------------------------------
+# 8. CLOUD SERVICE
+# --------------------------------------------------------------------
+.aws/
+.gcloud/
+.azure/
+
+# --------------------------------------------------------------------
+# 9. CUSTOM MEDIA
+# --------------------------------------------------------------------
+*.wav
+*.mp3
+*.plaintext
+
 # EOF
-#

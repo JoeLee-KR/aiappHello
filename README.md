@@ -1,8 +1,8 @@
 ### /aiHello
-- /openai_app-t12: OpenAI Apps w/RAG, python3.9
-- /cursor_ai_apps: start with cursor w/some apps
-- /vibe_cursor_30apps: start vibe code apps w/cursor
-- /vibe_v0: v0, cursor, PRD full cycle 
+- /openai_ai_t12: OpenAI Apps w/RAG, python3.9
+- /cursor_ai_myapps: start with cursor w/some apps
+- /cursor_ai_30apps: start vibe code apps w/cursor
+- /vibecoding_v0: v0, cursor, PRD full cycle 
 
 ### major subjects & Books
 - Book: OpenAI API Langchain활용 LLM Projects 12
