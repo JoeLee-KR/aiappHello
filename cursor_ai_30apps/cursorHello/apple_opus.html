@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사과 게임 Opus | nxclabs.com</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
+        body { 
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(180deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: white; 
+            touch-action: none; 
+            min-height: 100vh;
+        }
+        #game-canvas { 
+            border: 3px solid rgba(255, 107, 107, 0.5); 
+            border-radius: 16px; 
+            cursor: crosshair;
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.2);
+        }
+        .glow-text { text-shadow: 0 0 20px rgba(255, 107, 107, 0.8); }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #game-over-modal { display: none; }
+        /* noinspection ALL */
+        #game-over-modal.show { display: flex; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        /* noinspection ALL */
+        .pulse { animation: pulse 2s infinite; }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .slide-in { animation: slideIn 0.3s ease-out; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center p-4">
+
+    <div class="mb-8 text-center slide-in">
+        <h1 id="game-title" class="text-5xl font-extrabold mb-3 text-red-400 glow-text">🍎 사과 게임</h1>
+        <p class="text-gray-400 text-lg">드래그하여 숫자의 합이 <span class="text-yellow-400 font-bold">10의 배수</span>가 되게 만드세요!</p>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-4 mb-6 slide-in">
+        <div class="stat-card px-6 py-3 rounded-xl">
+            <span class="text-gray-400 text-sm">점수</span>
+            <div class="text-2xl font-bold text-emerald-400" id="score">0</div>
+        </div>
+        <div class="stat-card px-6 py-3 rounded-xl">
+            <span class="text-gray-400 text-sm">시간</span>
+            <div class="text-2xl font-bold text-red-400" id="timer">0</div>
+        </div>
+        <div class="stat-card px-6 py-3 rounded-xl">
+            <span class="text-gray-400 text-sm">선택 합계</span>
+            <div class="text-2xl font-bold text-yellow-400" id="current-sum">0</div>
+        </div>
+        <div class="stat-card px-6 py-3 rounded-xl">
+            <span class="text-gray-400 text-sm">남은 사과</span>
+            <div class="text-2xl font-bold text-purple-400" id="remaining">0</div>
+        </div>
+    </div>
+
+    <div class="relative slide-in">
+        <canvas id="game-canvas" width="600" height="400"></canvas>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-10 border border-slate-700 shadow-2xl max-w-md w-full mx-4 text-center">
+            <div class="text-6xl mb-4">🍎</div>
+            <h2 id="modal-title" class="text-4xl font-extrabold mb-2 text-red-400">게임 종료!</h2>
+            <p class="text-gray-400 mb-6">시간이 다 되었습니다!</p>
+            <div class="bg-slate-800/50 rounded-2xl p-6 mb-6">
+                <p class="text-lg text-gray-300">최종 점수</p>
+                <p class="text-5xl font-extrabold text-emerald-400" id="final-score">0</p>
+                <p class="text-sm text-gray-500 mt-2">제거한 사과: <span id="final-removed" class="text-yellow-400">0</span>개</p>
+            </div>
+            <button id="new-game-btn" class="w-full bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-400 hover:to-orange-400 text-white font-bold py-4 rounded-2xl transition text-xl shadow-lg">
+                다시 시작
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const timerElement = document.getElementById('timer');
+        const currentSumElement = document.getElementById('current-sum');
+        const remainingElement = document.getElementById('remaining');
+        const gameOverModal = document.getElementById('game-over-modal');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalRemovedElement = document.getElementById('final-removed');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const gameTitle = document.getElementById('game-title');
+        const modalTitle = document.getElementById('modal-title');
+
+        const ROWS = 10;
+        const COLS = 15;
+        const APPLE_SIZE = 40;
+
+        let apples = [];
+        let score = 0;
+        let timeLeft = 0;
+        let removedCount = 0;
+        let isDragging = false;
+        let startX, startY, endX, endY;
+        let gameActive = true;
+        let timerInterval = null;
+
+        class Apple {
+            constructor(row, col) {
+                this.row = row;
+                this.col = col;
+                this.value = Math.floor(Math.random() * 9) + 1;
+                this.x = col * APPLE_SIZE;
+                this.y = row * APPLE_SIZE;
+                this.removed = false;
+            }
+
+            draw(isSelected = false) {
+                if (this.removed) return;
+                
+                const centerX = this.x + APPLE_SIZE / 2;
+                const centerY = this.y + APPLE_SIZE / 2;
+                
+                // Shadow
+                ctx.beginPath();
+                ctx.arc(centerX + 2, centerY + 2, 18, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+                ctx.fill();
+                
+                // Apple body
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, 18, 0, Math.PI * 2);
+                
+                if (isSelected) {
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.shadowColor = '#fbbf24';
+                    ctx.shadowBlur = 15;
+                } else {
+                    ctx.fillStyle = '#dc2626';
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                
+                // Highlight
+                ctx.beginPath();
+                ctx.arc(centerX - 6, centerY - 6, 5, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.fill();
+                
+                // Number - 텍스트 테두리 (검은색 윤곽선)
+                ctx.font = '800 22px Outfit, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.lineWidth = 4;
+                ctx.strokeText(this.value, centerX, centerY);
+                
+                // Number - 흰색 텍스트
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(this.value, centerX, centerY);
+            }
+        }
+
+        function initGame() {
+            apples = [];
+            score = 0;
+            timeLeft = 180;
+            removedCount = 0;
+            gameActive = true;
+            
+            scoreElement.innerText = score;
+            timerElement.innerText = timeLeft;
+            currentSumElement.innerText = "0";
+            gameTitle.classList.remove('pulse');
+            modalTitle.classList.remove('pulse');
+            gameOverModal.classList.remove('show');
+            
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    apples.push(new Apple(r, c));
+                }
+            }
+            
+            updateRemaining();
+            draw();
+            
+            // Clear previous timer
+            if (timerInterval) clearInterval(timerInterval);
+            
+            // Start timer
+            timerInterval = setInterval(() => {
+                if (gameActive && timeLeft > 0) {
+                    timeLeft--;
+                    timerElement.innerText = timeLeft;
+                    if (timeLeft <= 0) {
+                        gameOver();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateRemaining() {
+            const count = apples.filter(a => !a.removed).length;
+            remainingElement.innerText = count.toString();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const selectedApples = isDragging ? getSelectedApples() : [];
+            const selectedSet = new Set(selectedApples);
+            
+            apples.forEach(apple => {
+                apple.draw(selectedSet.has(apple));
+            });
+
+            if (isDragging) {
+                ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.strokeRect(
+                    Math.min(startX, endX), 
+                    Math.min(startY, endY), 
+                    Math.abs(endX - startX), 
+                    Math.abs(endY - startY)
+                );
+                ctx.setLineDash([]);
+                ctx.fillStyle = 'rgba(251, 191, 36, 0.1)';
+                ctx.fillRect(
+                    Math.min(startX, endX), 
+                    Math.min(startY, endY), 
+                    Math.abs(endX - startX), 
+                    Math.abs(endY - startY)
+                );
+            }
+        }
+
+        function getSelectedApples() {
+            const x1 = Math.min(startX, endX);
+            const x2 = Math.max(startX, endX);
+            const y1 = Math.min(startY, endY);
+            const y2 = Math.max(startY, endY);
+
+            return apples.filter(apple => {
+                if (apple.removed) return false;
+                const appleCenterX = apple.x + APPLE_SIZE / 2;
+                const appleCenterY = apple.y + APPLE_SIZE / 2;
+                return appleCenterX >= x1 && appleCenterX <= x2 && 
+                       appleCenterY >= y1 && appleCenterY <= y2;
+            });
+        }
+
+        function calculateScore(count) {
+            if (count < 2) return count;
+            const extra = count - 2;
+            return 2 + extra * (extra + 1);
+        }
+
+        function gameOver() {
+            gameActive = false;
+            if (timerInterval) clearInterval(timerInterval);
+            finalScoreElement.innerText = score;
+            finalRemovedElement.innerText = removedCount;
+            modalTitle.classList.add('pulse');
+            gameOverModal.classList.add('show');
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (!gameActive) return;
+            isDragging = true;
+            const rect = canvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            endX = startX;
+            endY = startY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const rect = canvas.getBoundingClientRect();
+            endX = e.clientX - rect.left;
+            endY = e.clientY - rect.top;
+            
+            // Update current sum display
+            const selected = getSelectedApples();
+            const sum = selected.reduce((s, apple) => s + apple.value, 0);
+            currentSumElement.innerText = sum;
+            currentSumElement.style.color = (sum > 0 && sum % 10 === 0) ? '#34d399' : '#fbbf24';
+            
+            draw();
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const selected = getSelectedApples();
+            const sum = selected.reduce((s, apple) => s + apple.value, 0);
+
+            if (sum % 10 === 0 && sum > 0) {
+                selected.forEach(apple => apple.removed = true);
+                const points = calculateScore(selected.length);
+                score += points;
+                removedCount += selected.length;
+                scoreElement.innerText = score;
+                updateRemaining();
+            }
+            
+            currentSumElement.innerText = "0";
+            currentSumElement.style.color = '#fbbf24';
+            draw();
+        });
+
+        // Touch support
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!gameActive) return;
+            isDragging = true;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            startX = touch.clientX - rect.left;
+            startY = touch.clientY - rect.top;
+            endX = startX;
+            endY = startY;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!isDragging) return;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            endX = touch.clientX - rect.left;
+            endY = touch.clientY - rect.top;
+            
+            const selected = getSelectedApples();
+            const sum = selected.reduce((s, apple) => s + apple.value, 0);
+            currentSumElement.innerText = sum;
+            currentSumElement.style.color = (sum > 0 && sum % 10 === 0) ? '#34d399' : '#fbbf24';
+            
+            draw();
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (!isDragging) return;
+            isDragging = false;
+
+            const selected = getSelectedApples();
+            const sum = selected.reduce((s, apple) => s + apple.value, 0);
+
+            if (sum % 10 === 0 && sum > 0) {
+                selected.forEach(apple => apple.removed = true);
+                const points = calculateScore(selected.length);
+                score += points;
+                removedCount += selected.length;
+                scoreElement.innerText = score;
+                updateRemaining();
+            }
+            
+            currentSumElement.innerText = "0";
+            currentSumElement.style.color = '#fbbf24';
+            draw();
+        });
+
+        newGameBtn.addEventListener('click', initGame);
+
+        initGame();
+    </script>
+</body>
+</html>
+
