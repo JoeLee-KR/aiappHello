@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apple Game Collection</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+      color: #e8e8e8;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #8b8b9a;
+      margin-bottom: 40px;
+      font-size: 1rem;
+    }
+
+    .game-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .game-list li {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .game-list li:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 107, 107, 0.5);
+      transform: translateX(8px);
+    }
+
+    .game-list a {
+      display: flex;
+      align-items: center;
+      padding: 20px 24px;
+      text-decoration: none;
+      color: #e8e8e8;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+
+    .game-list a::before {
+      content: '🍎';
+      margin-right: 16px;
+      font-size: 1.5rem;
+    }
+
+    .game-list a::after {
+      content: '→';
+      margin-left: auto;
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: all 0.3s ease;
+      color: #ff6b6b;
+    }
+
+    .game-list li:hover a::after {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .file-count {
+      text-align: center;
+      margin-top: 40px;
+      color: #5a5a6e;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Apple Game Collection</h1>
+    <p class="subtitle">AI로 만든 사과 게임 모음</p>
+    
+    <ul class="game-list">
+      <li><a href="apple_game.html">Apple Game (Original)</a></li>
+      <li><a href="apple_gemini.html">Apple Gemini</a></li>
+      <li><a href="apple_gemini3.html">Apple Gemini 3</a></li>
+      <li><a href="apple_opus.html">Apple Opus</a></li>
+      <li><a href="apple_composer.html">Apple Composer</a></li>
+    </ul>
+
+    <p class="file-count">총 5개의 게임</p>
+  </div>
+</body>
+</html>
+
