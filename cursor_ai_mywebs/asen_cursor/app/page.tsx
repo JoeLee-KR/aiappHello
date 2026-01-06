@@ -1,62 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
+// API 응답 타입 정의 (Python의 dataclass나 TypedDict와 유사)
 interface AnalysisResult {
   score: number;
-  sentiment: "긍정적인 감성" | "부정적인 감성" | "중립적인 감성";
-  description: string;
+  result: "긍정적인 감성" | "부정적인 감성" | "중립적인 감성";
+  explanation: string;
 }
 
 interface HistoryItem {
   id: string;
   text: string;
   timestamp: Date;
-}
-
-// 간단한 감성 분석 시뮬레이션 함수
-function analyzeSentiment(text: string): AnalysisResult {
-  const positiveWords = ["좋아", "행복", "사랑", "기쁨", "감사", "최고", "훌륭", "멋져", "좋은", "기뻐", "즐거", "만족", "성공", "희망", "축하", "대박", "완벽", "예쁘", "아름다", "따뜻"];
-  const negativeWords = ["싫어", "슬픔", "화나", "짜증", "나쁜", "최악", "실망", "후회", "불안", "걱정", "힘들", "어려", "무서", "두려", "미움", "괴로", "아파", "지겨", "답답", "우울"];
-
-  const lowerText = text.toLowerCase();
-  let positiveCount = 0;
-  let negativeCount = 0;
-
-  positiveWords.forEach((word) => {
-    if (lowerText.includes(word)) positiveCount++;
-  });
-
-  negativeWords.forEach((word) => {
-    if (lowerText.includes(word)) negativeCount++;
-  });
-
-  const total = positiveCount + negativeCount;
-  let score: number;
-
-  if (total === 0) {
-    score = 50;
-  } else {
-    score = Math.round((positiveCount / total) * 100);
-  }
-
-  let sentiment: AnalysisResult["sentiment"];
-  let description: string;
-
-  if (score >= 60) {
-    sentiment = "긍정적인 감성";
-    description = "입력하신 텍스트에서 긍정적인 감정이 감지되었습니다.";
-  } else if (score <= 40) {
-    sentiment = "부정적인 감성";
-    description = "입력하신 텍스트에서 부정적인 감정이 감지되었습니다.";
-  } else {
-    sentiment = "중립적인 감성";
-    description = "입력하신 텍스트에서 특별한 감정 편향이 감지되지 않았습니다.";
-  }
-
-  return { score, sentiment, description };
 }
 
 // 날짜/시간 포맷팅
@@ -74,15 +32,42 @@ function truncateText(text: string, maxLength: number = 30): string {
   return text.slice(0, maxLength) + "...";
 }
 
+const HISTORY_STORAGE_KEY = "sentiment-history";
+const MAX_HISTORY_COUNT = 5;
+
+// 기록 저장 함수를 컴포넌트 밖으로 이동시켜 불필요한 재생성을 방지합니다.
+function saveHistory(newHistory: HistoryItem[]) {
+  localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(newHistory));
+}
+
+// 스타일링 관련 헬퍼 함수들을 컴포넌트 밖으로 이동시킵니다.
+const getSentimentColor = (sentiment: string) => {
+  switch (sentiment) {
+    case "긍정적인 감성":
+      return "text-emerald-600";
+    case "부정적인 감성":
+      return "text-rose-600";
+    default:
+      return "text-slate-600";
+  }
+};
+
+const getScoreBarColor = (score: number) => {
+  if (score >= 60) return "bg-emerald-500";
+  if (score <= 40) return "bg-rose-500";
+  return "bg-slate-500";
+};
+
 export default function Home() {
   const [inputText, setInputText] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState<string | null>(null); // 에러 상태 추가
   const [history, setHistory] = useState<HistoryItem[]>([]);
 
   // localStorage에서 기록 불러오기
   useEffect(() => {
-    const saved = localStorage.getItem("sentiment-history");
+    const saved = localStorage.getItem(HISTORY_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
       setHistory(parsed.map((item: { id: string; text: string; timestamp: string }) => ({
@@ -92,50 +77,48 @@ export default function Home() {
     }
   }, []);
 
-  // 기록 저장
-  const saveHistory = (newHistory: HistoryItem[]) => {
-    localStorage.setItem("sentiment-history", JSON.stringify(newHistory));
-  };
+  const handleAnalyze = useCallback(async () => {
+      if (!inputText.trim()) return;
 
-  const handleAnalyze = async () => {
-    if (!inputText.trim()) return;
+      setIsAnalyzing(true);
+      setResult(null);
+      setError(null);
 
-    setIsAnalyzing(true);
-    setResult(null);
+      // 기록 추가 (최대 5개)
+      const newItem: HistoryItem = {
+        id: Date.now().toString(),
+        text: inputText.trim(),
+        timestamp: new Date(),
+      };
+      const newHistory = [newItem, ...history].slice(0, MAX_HISTORY_COUNT);
+      setHistory(newHistory);
+      saveHistory(newHistory);
 
-    // 기록 추가 (최대 5개)
-    const newItem: HistoryItem = {
-      id: Date.now().toString(),
-      text: inputText.trim(),
-      timestamp: new Date(),
-    };
-    const newHistory = [newItem, ...history].slice(0, 5);
-    setHistory(newHistory);
-    saveHistory(newHistory);
+      try {
+        // API 호출 (Python requests.post와 유사)
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: inputText }),
+        });
 
-    await new Promise((resolve) => setTimeout(resolve, 800));
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText || '분석 요청 실패');
+        }
 
-    const analysisResult = analyzeSentiment(inputText);
-    setResult(analysisResult);
-    setIsAnalyzing(false);
-  };
+        const data = await response.json();
+        setResult(data);
 
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment) {
-      case "긍정적인 감성":
-        return "text-emerald-600";
-      case "부정적인 감성":
-        return "text-rose-600";
-      default:
-        return "text-slate-600";
-    }
-  };
-
-  const getScoreBarColor = (score: number) => {
-    if (score >= 60) return "bg-emerald-500";
-    if (score <= 40) return "bg-rose-500";
-    return "bg-slate-500";
-  };
+      } catch (err) {
+        console.error(err);
+        setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+      } finally {
+        setIsAnalyzing(false);
+      }
+    }, [inputText, history]); // inputText와 history가 변경될 때만 함수를 재생성합니다.
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -147,7 +130,7 @@ export default function Home() {
               AI 감성분석기
             </h1>
             <p className="text-slate-600 text-base sm:text-lg">
-              AI가 분석한 감성을 표시합니다.
+              Gemini AI가 분석한 감성을 표시합니다.
             </p>
           </div>
 
@@ -184,6 +167,14 @@ export default function Home() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
               />
+
+              {/* 에러 메시지 표시 */}
+              {error && (
+                <div className="p-3 text-sm text-rose-600 bg-rose-50 rounded-md border border-rose-100">
+                  ⚠️ {error}
+                </div>
+              )}
+
               <Button
                 onClick={handleAnalyze}
                 disabled={!inputText.trim() || isAnalyzing}
@@ -192,7 +183,7 @@ export default function Home() {
                 {isAnalyzing ? (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    분석 중...
+                    AI 분석 중...
                   </span>
                 ) : (
                   "분석하기"
@@ -212,10 +203,10 @@ export default function Home() {
                 <div className="text-center animate-fade-in-delay-1">
                   <span
                     className={`text-2xl sm:text-3xl font-bold ${getSentimentColor(
-                      result.sentiment
+                      result.result
                     )} transition-colors duration-500`}
                   >
-                    {result.sentiment}
+                    {result.result}
                   </span>
                 </div>
 
@@ -243,7 +234,7 @@ export default function Home() {
                 {/* 설명 */}
                 <div className="p-4 bg-slate-50 rounded-lg animate-fade-in-delay-3">
                   <p className="text-slate-600 text-sm leading-relaxed">
-                    {result.description}
+                    {result.explanation}
                   </p>
                 </div>
               </CardContent>
