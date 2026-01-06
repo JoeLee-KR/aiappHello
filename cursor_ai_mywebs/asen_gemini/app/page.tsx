@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 
 interface AnalysisResult {
   score: number;
@@ -16,12 +16,14 @@ export default function Home() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleAnalyze = async () => {
     if (!text.trim()) return;
 
     setLoading(true);
     setResult(null);
+    setError(null);
 
     try {
       const response = await fetch("/api/analyze", {
@@ -32,15 +34,15 @@ export default function Home() {
         body: JSON.stringify({ text }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to analyze");
+      const resData = await response.json();
+      if (!response.ok || !resData.success) {
+        throw new Error(resData.error || "분석 중 오류가 발생했습니다.");
       }
 
-      const data = await response.json();
-      setResult(data);
+      setResult(resData.data);
     } catch (error) {
       console.error("Error:", error);
-      alert("분석 중 오류가 발생했습니다.");
+      setError(error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
@@ -70,6 +72,12 @@ export default function Home() {
               value={text}
               onChange={(e) => setText(e.target.value)}
             />
+            {error && (
+              <div className="flex items-center gap-2 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-md">
+                <AlertCircle className="h-4 w-4" />
+                <p>{error}</p>
+              </div>
+            )}
             <Button
               className="w-full"
               onClick={handleAnalyze}
