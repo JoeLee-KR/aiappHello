@@ -4,7 +4,7 @@ TARGET_IP="${1:-localhost}"
 URL="http://${TARGET_IP}:11434/api/generate"
 
 # 테스트용 프롬프트 (작은따옴표 포함)
-MY_PROMPT=""
+MY_PROMPT="Node.js로 'Hello World'를 콘솔에 찍는 코드를 짜줘"
 
 echo ">> [Connecting to Ollama Server] ${TARGET_IP}"
 echo ">> [Request prompt] ${MY_PROMPT}"
