@@ -15,7 +15,7 @@
 
     <div class="mb-6 text-center">
         <h1 class="text-4xl font-extrabold mb-2 text-red-500">사과 게임</h1>
-        <p class="text-gray-400">드래그하여 숫자의 합이 <span class="text-yellow-400 font-bold">10</span>이 되게 만드세요!</p>
+        <p class="text-gray-400">드래그하여 숫자의 합이 <span class="text-yellow-400 font-bold">10의 배수</span>이 되게 만드세요!</p>
     </div>
 
     <div class="relative bg-zinc-900 p-6 rounded-2xl shadow-2xl border border-zinc-800">
@@ -23,9 +23,9 @@
             <div class="text-xl font-mono">Score: <span id="score" class="text-emerald-400">0</span></div>
             <div class="text-xl font-mono">Time: <span id="timer" class="text-red-400">120</span>s</div>
         </div>
-        
+
         <canvas id="game-canvas" width="600" height="400"></canvas>
-        
+
         <div class="mt-6 flex gap-4">
             <button id="reset-btn" class="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl transition">다시 시작</button>
             <button id="hint-btn" class="px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition">힌트</button>
@@ -63,13 +63,13 @@
 
             draw() {
                 if (this.removed) return;
-                
+
                 // Draw Apple
                 ctx.beginPath();
                 ctx.arc(this.x + APPLE_SIZE/2, this.y + APPLE_SIZE/2, 16, 0, Math.PI * 2);
                 ctx.fillStyle = '#ef4444';
                 ctx.fill();
-                
+
                 // Draw Number
                 ctx.fillStyle = 'white';
                 ctx.font = 'bold 18px Inter, sans-serif';
@@ -85,7 +85,7 @@
             timeLeft = 120;
             gameActive = true;
             scoreElement.innerText = score;
-            
+
             for (let r = 0; r < ROWS; r++) {
                 for (let c = 0; c < COLS; c++) {
                     apples.push(new Apple(r, c));
@@ -117,7 +117,7 @@
                 if (apple.removed) return false;
                 const appleCenterX = apple.x + APPLE_SIZE / 2;
                 const appleCenterY = apple.y + APPLE_SIZE / 2;
-                return appleCenterX >= x1 && appleCenterX <= x2 && 
+                return appleCenterX >= x1 && appleCenterX <= x2 &&
                        appleCenterY >= y1 && appleCenterY <= y2;
             });
         }
@@ -147,7 +147,8 @@
             const selected = getSelectedApples();
             const sum = selected.reduce((s, apple) => s + apple.value, 0);
 
-            if (sum === 10) {
+            // 합이 "10의 배수"면 제거 (10, 20, 30, ...)
+            if (selected.length > 0 && sum % 10 === 0) {
                 selected.forEach(apple => apple.removed = true);
                 score += selected.length;
                 scoreElement.innerText = score;
