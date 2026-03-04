@@ -104,13 +104,19 @@ export default function Home() {
           body: JSON.stringify({ text: inputText }),
         });
 
+        const data = await response.json().catch(() => null);
+
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(errorText || '분석 요청 실패');
         }
 
-        const data = await response.json();
-        setResult(data);
+        //const data = await response.json();
+        if (!data?.success) {
+          throw new Error(data?.error || "분석에 실패했습니다.");
+        }
+        //setResult(data);
+        setResult(data.data as AnalysisResult);
 
       } catch (err) {
         console.error(err);
